@@ -2,7 +2,7 @@
 
 ## Technologies:
   * Elixir (http://elixir-lang.github.io/)
-  * fs (https://github.com/synrc/fs)
+  * file_system (https://github.com/falood/file_system)
 
 ## Goals:
   * Fault-invincible
@@ -28,8 +28,11 @@ This module is in charge of maintaining an index of all of watched files. It sto
 
 This will be implemented in a GenServer. A handle_info callback will be used to respond to the filesystem subscription messages. This index is the first thing that is compared between synced folders. This module will also contain a function for computing the difference between two indices. If these indices match perfectly, job well done. If they are different, then a syncing process is spawned for all of the files that are contained in that difference and they are brought back into sync.
 
+The index and a timestamp should be saved to disk on exit, so that deleted files can be tracked. If a file is deleted while wizard is not running, on the next start, the missing file will be noticed. If the file was deleted more recently than all other remote versions were modified, it should be safe to delete.
+
 ###### Misc Notes:
   * If files are different, compute hashes block by block (1024 bytes) and for all differing blocks in the old file, replace them with the new blocks. This will be a bit tricky, so here is a reference: [Rsync Overview](http://tutorials.jenkov.com/rsync/overview.html).
+  * When files are deleted, they should be just moved to the trash, not fully deleted. After a month or so, it should be safe to delete the files completely from the trash. This is important because fully deleting files on all machines means no chance of a backup. Wizard wouldn't help recover from a nasty rm command if it didn't save deleted files for a little while.
 
 
 ## Installation

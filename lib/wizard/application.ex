@@ -8,7 +8,7 @@ defmodule Wizard.Application do
   def start(_type, _args) do
     # List all child processes to be supervised
     children = [
-      Wizard.Index
+      {Wizard.Index, name: Wizard.Index}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
