@@ -4,7 +4,7 @@ defmodule Wizard.Index do
   use GenServer
 
   # Eventually load synced directories from a config file.
-  @synced_dirs ["/home/ttl/Documents/Notebook"]
+  @synced_dirs ["/home/ttl/Documents"]
 
   ## Client API
 
@@ -37,7 +37,8 @@ defmodule Wizard.Index do
     {:reply, state, state}
   end
 
-  def handle_info(_, state) do
+  def handle_info(stuff, state) do
+    stuff |> Kernel.inspect |> Logger.info
     {:noreply, state}
   end
 

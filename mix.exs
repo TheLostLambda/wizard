@@ -22,7 +22,7 @@ defmodule Wizard.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:file_system, "~> 0.2"}
+      {:file_system, github: "TheLostLambda/file_system"},
     ]
   end
 end
