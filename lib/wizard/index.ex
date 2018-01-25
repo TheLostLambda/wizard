@@ -4,7 +4,7 @@ defmodule Wizard.Index do
   use GenServer
 
   # Eventually load synced directories from a config file.
-  @synced_dirs ["/home/ttl/Documents"]
+  @synced_dirs ["/home/ttl/Downloads"]
 
   ## Client API
 
@@ -33,13 +33,23 @@ defmodule Wizard.Index do
     {:ok, dex}
   end
 
-  def handle_call(:get_map, _from, state) do
-    {:reply, state, state}
+  def handle_call(:get_map, _from, dex) do
+    {:reply, dex, dex}
   end
 
-  def handle_info(stuff, state) do
-    stuff |> Kernel.inspect |> Logger.info
-    {:noreply, state}
+  def handle_info({:file_event, _pid, {path, actions}}, dex) do
+    new_dex = cond do
+      contains_any?(actions, [:modified]) ->
+        Logger.info "Index merged with: " <> path
+        Map.merge(dex, index(path))
+      contains_any?(actions, [:deleted]) ->
+        Logger.info "Removed item from index: " <> path
+        Map.drop(dex, [path])
+      true ->
+        actions |> Kernel.inspect |> Logger.info
+        dex
+    end
+    {:noreply, new_dex}
   end
 
   ## Internal Functions (make these all defp)
@@ -66,6 +76,10 @@ defmodule Wizard.Index do
 
   defp symlink?(file) do
     File.lstat!(file).type == :symlink
+  end
+
+  defp contains_any?(lst, test_lst) do
+    Enum.any?(test_lst, fn v -> Enum.member?(lst, v) end)
   end
 
 end

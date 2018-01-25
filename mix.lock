@@ -1,2 +1,2 @@
-%{"file_system": {:git, "https://github.com/TheLostLambda/file_system.git", "9ddeba371329f5402374d058406ce523cda4f4f8", []},
+%{"file_system": {:hex, :file_system, "0.2.4", "f0bdda195c0e46e987333e986452ec523aed21d784189144f647c43eaf307064", [:mix], [], "hexpm"},
   "fs": {:git, "https://github.com/synrc/fs.git", "bed946700628541d65c64aa779e01490d9842f5f", []}}
