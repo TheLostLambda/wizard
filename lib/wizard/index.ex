@@ -39,14 +39,11 @@ defmodule Wizard.Index do
 
   def handle_info({:file_event, _pid, {path, actions}}, dex) do
     new_dex = cond do
-      contains_any?(actions, [:modified]) ->
-        Logger.info "Index merged with: " <> path
-        Map.merge(dex, index(path))
+      contains_any?(actions, [:modified, :created]) ->
+        dex |> Map.merge(index(path)) |> Map.merge(index(Path.dirname(path)))
       contains_any?(actions, [:deleted]) ->
-        Logger.info "Removed item from index: " <> path
-        Map.drop(dex, [path])
+        dex |> clean_delete(path) |> Map.merge(index(Path.dirname(path)))
       true ->
-        actions |> Kernel.inspect |> Logger.info
         dex
     end
     {:noreply, new_dex}
@@ -54,11 +51,16 @@ defmodule Wizard.Index do
 
   ## Internal Functions (make these all defp)
 
+  defp clean_delete(dex, key) do
+    old_keys = Map.keys(dex) |> Enum.filter(&(&1 =~ key))
+    Map.drop(dex, old_keys)
+  end
+
   defp crawl_and_index(dir, dex) do
     Enum.reduce(File.ls!(dir), dex, fn(file, map) ->
       path = Path.join(dir, file)
       if File.dir?(path) and not symlink?(path) do
-        Map.merge(map, crawl_and_index(path, %{}))
+        map |> Map.merge(index(path)) |> Map.merge(crawl_and_index(path, %{}))
       else
         Map.merge(map, index(path))
       end
