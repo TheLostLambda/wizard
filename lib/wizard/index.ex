@@ -44,6 +44,8 @@ defmodule Wizard.Index do
     {:reply, dex, dex}
   end
 
+  # This diff is currently only one way. Make it two way by starting with the local
+  # index as opposed to an empty map. It currently misses files that are added.
   def handle_call({:gen_diff, remote}, _from, local) do
     diff = Enum.reduce(remote, %{}, fn(entry, diff) ->
       {file, time} = entry
