@@ -34,20 +34,9 @@ The index and a timestamp should be saved to disk on exit, so that deleted files
   * If files are different, compute hashes block by block (1024 bytes) and for all differing blocks in the old file, replace them with the new blocks. This will be a bit tricky, so here is a reference: [Rsync Overview](http://tutorials.jenkov.com/rsync/overview.html).
   * When files are deleted, they should be just moved to the trash, not fully deleted. After a month or so, it should be safe to delete the files completely from the trash. This is important because fully deleting files on all machines means no chance of a backup. Wizard wouldn't help recover from a nasty rm command if it didn't save deleted files for a little while.
 
+## Running:
 
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `wizard` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:wizard, "~> 0.1.0"}
-  ]
-end
+Currently Wizard can only be started via `iex`. You can start Wizard using the following command:
 ```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/wizard](https://hexdocs.pm/wizard).
+iex -S mix
+```

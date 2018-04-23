@@ -22,6 +22,13 @@ defmodule Wizard.Index do
     GenServer.call(pid, :get_map)
   end
 
+  @doc """
+  Compares this index to another and creates a diff
+  """
+  def gen_diff(pid, map) do
+    GenServer.call(pid, {:gen_diff, map})
+  end
+
   ## Server Callbacks
 
   def init(:rebuild_and_watch) do
@@ -35,6 +42,23 @@ defmodule Wizard.Index do
 
   def handle_call(:get_map, _from, dex) do
     {:reply, dex, dex}
+  end
+
+  def handle_call({:gen_diff, remote}, _from, local) do
+    diff = Enum.reduce(remote, %{}, fn(entry, diff) ->
+      {file, time} = entry
+      if Map.has_key?(local, file) do
+        comp = compare(Map.get(local, file), time)
+        if comp != 0 do
+          Map.put(diff, file, comp)
+        else
+          diff
+        end
+      else
+        Map.put(diff, file, 0)
+      end
+    end)
+    {:reply, diff, local}
   end
 
   def handle_info({:file_event, _pid, {path, actions}}, dex) do
@@ -51,6 +75,8 @@ defmodule Wizard.Index do
 
   ## Internal Functions (make these all defp)
 
+  # This is overzealous. Make sure it only deletes paths starting from root and
+  # that are within the synced directories. This also applies to indexing.
   defp clean_delete(dex, key) do
     old_keys = Map.keys(dex) |> Enum.filter(&(&1 =~ key))
     Map.drop(dex, old_keys)
@@ -84,4 +110,11 @@ defmodule Wizard.Index do
     Enum.any?(test_lst, fn v -> Enum.member?(lst, v) end)
   end
 
+  defp compare(a, b) do
+    cond do
+      a < b -> -1
+      a > b -> 1
+      true -> 0
+    end
+  end
 end
